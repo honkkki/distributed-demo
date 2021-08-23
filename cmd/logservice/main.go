@@ -4,21 +4,23 @@ import (
 	"context"
 	"fmt"
 	"github.com/honkkki/distributed-demo/log"
+	"github.com/honkkki/distributed-demo/registry"
 	"github.com/honkkki/distributed-demo/service"
 	stlog "log"
 )
 
-
-func main()  {
+func main() {
 	log.Init("./distributed.log")
 	host, port := "127.0.0.1", "9091"
-	ctx, err := service.Run(context.Background(), "Log Service", host, port, log.RegisterHandlers)
+	serviceUrl := fmt.Sprintf("http://%s:%s", host, port)
+	reg := registry.NewRegistration("Log Service", serviceUrl)
+	ctx, err := service.Run(context.Background(), reg, host, port, log.RegisterHandlers)
 	if err != nil {
+		stlog.SetFlags(stlog.Llongfile | stlog.LstdFlags)
 		stlog.Fatalln(err)
 	}
 
-	<- ctx.Done()
+	<-ctx.Done()
 	fmt.Println("Log Service shutting down!")
-
 
 }

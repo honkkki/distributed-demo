@@ -9,7 +9,7 @@ import (
 
 const (
 	ServerPort = ":9099"
-	ServerUrl  = "127.0.0.1" + ServerPort + "/services"
+	ServerUrl  = "http://127.0.0.1" + ServerPort + "/services"
 )
 
 type Registry struct {
@@ -28,6 +28,10 @@ func (r *Registry) add(reg Registration) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.registrations = append(r.registrations, reg)
+}
+
+func (r *Registry) remove(url string) error {
+
 }
 
 func (r *RegService) ServeHTTP(w http.ResponseWriter, req *http.Request)  {

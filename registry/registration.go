@@ -5,6 +5,9 @@ type Registration struct {
 	ServiceUrl  string `json:"service_url"`
 }
 
-const (
-	LogService = "LogService"
-)
+func NewRegistration(name, url string) Registration {
+	return Registration{
+		ServiceName: name,
+		ServiceUrl:  url,
+	}
+}

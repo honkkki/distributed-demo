@@ -2,6 +2,7 @@ package registry
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"sync"
@@ -31,10 +32,19 @@ func (r *Registry) add(reg Registration) {
 }
 
 func (r *Registry) remove(url string) error {
+	for i, registration := range r.registrations {
+		if registration.ServiceUrl == url {
+			r.mu.Lock()
+			r.registrations = append(r.registrations[:i], r.registrations[i+1:]...)
+			r.mu.Unlock()
+			return nil
+		}
+	}
 
+	return nil
 }
 
-func (r *RegService) ServeHTTP(w http.ResponseWriter, req *http.Request)  {
+func (r *RegService) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	log.Println("request received")
 	switch req.Method {
 	case http.MethodPost:
@@ -50,6 +60,22 @@ func (r *RegService) ServeHTTP(w http.ResponseWriter, req *http.Request)  {
 		reg.add(registration)
 		log.Println("add service success!")
 		log.Println(reg.registrations)
+	case http.MethodDelete:
+		body, err := ioutil.ReadAll(req.Body)
+		if err != nil {
+			log.Println(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		url := string(body)
+		log.Printf("Removing service url: %s\n", url)
+		err = reg.remove(url)
+		if err != nil {
+			log.Println(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		log.Println("remove service success!")
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return

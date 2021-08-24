@@ -9,7 +9,7 @@ import (
 )
 
 func Run(ctx context.Context, reg registry.Registration, host, port string, registerHandleFunc func()) (context.Context, error) {
-	registerHandleFunc()                                  // 注册路由
+	registerHandleFunc()                                   // 注册路由
 	ctx2 := startService(ctx, reg.ServiceName, host, port) // 启动服务
 
 	err := registry.RegisterService(reg)
@@ -27,7 +27,10 @@ func startService(ctx context.Context, serviceName, host, port string) context.C
 
 	go func() {
 		log.Println(srv.ListenAndServe())
-
+		err := registry.RemoveService(fmt.Sprintf("http://%s:%s", host, port))
+		if err != nil {
+			log.Println(err)
+		}
 		cancel()
 	}()
 
@@ -35,7 +38,6 @@ func startService(ctx context.Context, serviceName, host, port string) context.C
 		fmt.Printf("%v started. Press any key to stop. \n", serviceName)
 		var str string
 		fmt.Scanln(&str)
-
 		srv.Shutdown(ctx2)
 		cancel()
 	}()

@@ -26,3 +26,20 @@ func RegisterService(r Registration) error {
 
 	return nil
 }
+
+func RemoveService(url string) error {
+	req, err := http.NewRequest(http.MethodDelete, ServerUrl, bytes.NewBuffer([]byte(url)))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "text/plain")
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	if res.StatusCode != http.StatusOK {
+		return fmt.Errorf("remove service fail with http code: %v", res.StatusCode)
+	}
+
+	return nil
+}

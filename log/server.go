@@ -12,7 +12,7 @@ var log *stlog.Logger
 type fileLog string
 
 func (fl fileLog) Write(data []byte) (int, error) {
-	f, err := os.OpenFile(string(fl), os.O_CREATE | os.O_APPEND | os.O_WRONLY, 0600)
+	f, err := os.OpenFile(string(fl), os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
 	if err != nil {
 		return 0, err
 	}
@@ -21,15 +21,15 @@ func (fl fileLog) Write(data []byte) (int, error) {
 }
 
 // Init init log
-func Init(dest string)  {
+func Init(dest string) {
 	log = stlog.New(fileLog(dest), "distributed： ", stlog.LstdFlags)
 }
 
-func write(msg string)  {
+func write(msg string) {
 	log.Printf("%s\n", msg)
 }
 
-func RegisterHandlers()  {
+func RegisterHandlers() {
 	http.HandleFunc("/log", func(writer http.ResponseWriter, request *http.Request) {
 		switch request.Method {
 		case http.MethodPost:
@@ -46,4 +46,3 @@ func RegisterHandlers()  {
 	})
 
 }
-
